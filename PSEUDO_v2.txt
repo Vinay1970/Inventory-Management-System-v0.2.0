@@ -1,0 +1,26 @@
+Inventory Management — Pseudocode v0.2.0
+
+What's new in v0.2.0
+- Centralized DB access via `db_cursor()` context manager.
+- Password hashing (PBKDF2-HMAC-SHA256) + migration of legacy plaintext passwords.
+- Logging to `app.log` and safer image path resolution.
+- Switched ad-hoc DB calls in UI modules to use `db_cursor()` and parameterized queries.
+- Added `VERSION` and sample license files.
+
+Key flows (concise)
+- Login:
+  - Read stored password for username.
+  - If stored value contains salt (`salt$hash`), `verify_password()`.
+  - If stored plaintext matches, re-hash with `hash_password()` and update DB.
+
+- Add/Update records:
+  - UI validates inputs.
+  - Use `with db_cursor() as (cursor, conn):` to run CREATE/SELECT/INSERT/UPDATE with parameterized queries.
+  - Commit inside context and call `treeview_data()` to refresh UI.
+
+Migration notes
+- If you have many users with plaintext passwords, run a migration script or let users log in once to migrate their password to hashed form automatically.
+- Verify database table names and column names (some typos existed historically).
+
+Suggested bump policy
+- Bump `VERSION` to `0.2.0` for these changes; use `0.3.0` for UI refactors; `1.0.0` for stable/public release.
